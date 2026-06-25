@@ -30,7 +30,6 @@ function getDB(): PDO
     return $pdo;
 }
 
-// ── Get the visitor's real IP ────────────────────────────────
 function getUserIP(): string
 {
     foreach (['HTTP_CLIENT_IP','HTTP_X_FORWARDED_FOR','HTTP_X_REAL_IP','REMOTE_ADDR'] as $key) {
@@ -44,13 +43,12 @@ function getUserIP(): string
     return '0.0.0.0';
 }
 
-// ── Escape HTML output ───────────────────────────────────────
 function e(string $s): string
 {
     return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
 }
 
-// ── Generate (or reuse) a session CSRF token ─────────────────
+
 function csrfToken(): string
 {
     if (empty($_SESSION['csrf_token'])) {
@@ -59,7 +57,6 @@ function csrfToken(): string
     return $_SESSION['csrf_token'];
 }
 
-// ── Validate submitted CSRF token ────────────────────────────
 function csrfCheck(): void
 {
     $submitted = $_POST['csrf_token'] ?? '';
@@ -69,7 +66,6 @@ function csrfCheck(): void
     }
 }
 
-// ── Fatal error page ─────────────────────────────────────────
 function renderFatal(string $title, string $detail = ''): string
 {
     $t = e($title);
@@ -91,7 +87,6 @@ function renderFatal(string $title, string $detail = ''): string
 HTML;
 }
 
-// ── Shared page HTML wrapper ─────────────────────────────────
 function pageHeader(string $title): void
 {
     $t = e($title);
