@@ -45,14 +45,14 @@ if (!$loggedIn) {
 
 $db   = getDB();
 $stat = $db->query(
-    'SELECT COUNT(*) AS total, SUM(is_completed) AS completed,
+        'SELECT COUNT(*) AS total, SUM(is_completed) AS completed,
             ROUND(AVG(CASE WHEN is_completed=1 THEN score END),1) AS avg_score,
             MAX(score) AS top_score
      FROM test_sessions'
 )->fetch();
 
 $sessions = $db->query(
-    'SELECT id, first_name, last_name, ip_address, score,
+        'SELECT id, first_name, last_name, ip_address, score,
             current_question_index, is_completed, started_at, completed_at
      FROM test_sessions ORDER BY started_at DESC'
 )->fetchAll();
@@ -65,7 +65,7 @@ if ($viewId > 0) {
     $s->execute([$viewId]); $viewSess = $s->fetch();
     if ($viewSess) {
         $s = $db->prepare(
-            'SELECT a.selected_answer, a.is_correct, q.question_text,
+                'SELECT a.selected_answer, a.is_correct, q.question_text,
                     q.option_a, q.option_b, q.option_c, q.option_d, q.correct_answer
              FROM answers a JOIN questions q ON q.id = a.question_id
              WHERE a.session_id = ? ORDER BY a.id ASC'
@@ -77,29 +77,29 @@ if ($viewId > 0) {
 pageHeader('Admin Dashboard', 'quiz-card wide');
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0">📊 Quiz Dashboard</h4>
-    <form method="post" action="admin.php">
-        <button name="logout" class="btn btn-sm btn-outline-secondary">Log out</button>
-    </form>
-</div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0">📊 Quiz Dashboard</h4>
+        <form method="post" action="admin.php">
+            <button name="logout" class="btn btn-sm btn-outline-secondary">Log out</button>
+        </form>
+    </div>
 
-<div class="row g-3 mb-4">
-    <?php foreach ([
-                       ['👤','Registered', (int)($stat['total']??0),            'text-primary'],
-                       ['✅','Completed',  (int)($stat['completed']??0),         'text-success'],
-                       ['📈','Average',    ($stat['avg_score']??0).'/'.QUESTIONS_PER_TEST,'text-info'],
-                       ['🏆','Top Score',  (int)($stat['top_score']??0).'/'.QUESTIONS_PER_TEST,'text-warning'],
-                   ] as [$icon,$label,$val,$cls]): ?>
-        <div class="col-6 col-sm-3">
-            <div class="stat-card">
-                <div class="stat-icon"><?= $icon ?></div>
-                <div class="stat-value <?= $cls ?>"><?= $val ?></div>
-                <div class="stat-label"><?= $label ?></div>
+    <div class="row g-3 mb-4">
+        <?php foreach ([
+                               ['👤','Registered', (int)($stat['total']??0),                          'text-primary'],
+                               ['✅','Completed',  (int)($stat['completed']??0),                       'text-success'],
+                               ['📈','Average',    ($stat['avg_score']??0).'/'.QUESTIONS_PER_TEST,     'text-info'],
+                               ['🏆','Top Score',  (int)($stat['top_score']??0).'/'.QUESTIONS_PER_TEST,'text-warning'],
+                       ] as [$icon,$label,$val,$cls]): ?>
+            <div class="col-6 col-sm-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><?= $icon ?></div>
+                    <div class="stat-value <?= $cls ?>"><?= $val ?></div>
+                    <div class="stat-label"><?= $label ?></div>
+                </div>
             </div>
-        </div>
-    <?php endforeach; ?>
-</div>
+        <?php endforeach; ?>
+    </div>
 
 <?php if ($viewSess): ?>
     <div class="card border-primary shadow-sm mb-4">
@@ -115,7 +115,7 @@ pageHeader('Admin Dashboard', 'quiz-card wide');
                 Finished: <?= $viewSess['completed_at'] ? e(substr($viewSess['completed_at'],0,16)) : '—' ?>
             </p>
             <?php foreach ($viewAnswers as $i => $row):
-                $ok = (int)$row['is_correct'];
+                $ok   = (int)$row['is_correct'];
                 $opts = ['A'=>$row['option_a'],'B'=>$row['option_b'],'C'=>$row['option_c'],'D'=>$row['option_d']];
                 ?>
                 <div class="answer-row <?= $ok ? 'correct' : 'incorrect' ?>">
@@ -136,11 +136,12 @@ pageHeader('Admin Dashboard', 'quiz-card wide');
     </div>
 <?php endif; ?>
 
-<div class="d-flex justify-content-between align-items-center mb-2">
-    <h5 class="fw-bold mb-0">All Sessions</h5>
-    <input type="text" id="sessionSearch" class="form-control form-control-sm"
-           style="max-width:240px" placeholder="🔍 Filter by name or IP…">
-</div>
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="fw-bold mb-0">All Sessions</h5>
+        <input type="text" id="sessionSearch"
+               class="form-control form-control-sm admin-search"
+               placeholder="🔍 Filter by name or IP…">
+    </div>
 
 <?php if (empty($sessions)): ?>
     <div class="text-center py-5 text-muted">No sessions yet.</div>
@@ -152,9 +153,10 @@ pageHeader('Admin Dashboard', 'quiz-card wide');
             </thead>
             <tbody id="sessionsBody">
             <?php foreach ($sessions as $s):
-                $done = (int)$s['is_completed'];
-                $pct  = $done ? round(($s['score']/QUESTIONS_PER_TEST)*100) : 0;
-                $col  = $pct>=70 ? '#16a34a' : ($pct>=50 ? '#ca8a04' : '#dc2626');
+                $done     = (int)$s['is_completed'];
+                $pct      = $done ? round(($s['score']/QUESTIONS_PER_TEST)*100) : 0;
+                $colClass = $pct >= 70 ? 'score-high' : ($pct >= 50 ? 'score-mid' : 'score-low');
+                $prog     = min(100, round(($s['current_question_index']/QUESTIONS_PER_TEST)*100));
                 ?>
                 <tr data-session-id="<?= (int)$s['id'] ?>">
                     <td class="text-muted"><?= (int)$s['id'] ?></td>
@@ -162,22 +164,23 @@ pageHeader('Admin Dashboard', 'quiz-card wide');
                     <td><code><?= e($s['ip_address']) ?></code></td>
                     <td>
                         <?php if ($done): ?>
-                            <span class="fw-bold" style="color:<?= $col ?>"><?= (int)$s['score'] ?>/<?= QUESTIONS_PER_TEST ?></span>
+                            <span class="fw-bold <?= $colClass ?>"><?= (int)$s['score'] ?>/<?= QUESTIONS_PER_TEST ?></span>
                             <span class="text-muted small">(<?= $pct ?>%)</span>
-                        <?php else: ?><span class="text-muted">—</span><?php endif; ?>
+                        <?php else: ?>
+                            <span class="text-muted">—</span>
+                        <?php endif; ?>
                     </td>
-                    <td style="min-width:110px">
-                        <?php $prog = min(100,round(($s['current_question_index']/QUESTIONS_PER_TEST)*100)); ?>
-                        <div class="progress mb-1" style="height:5px">
-                            <div class="progress-bar" style="width:<?= $prog ?>%;background:#4f46e5"></div>
+                    <td class="progress-cell">
+                        <div class="progress progress-mini mb-1">
+                            <div class="progress-bar progress-bar-indigo" style="width:<?= $prog ?>%"></div>
                         </div>
                         <small class="text-muted"><?= (int)$s['current_question_index'] ?>/<?= QUESTIONS_PER_TEST ?></small>
                     </td>
                     <td>
                         <?php if ($done): ?>
-                            <span class="badge" style="background:#dcfce7;color:#16a34a">Completed</span>
+                            <span class="badge badge-completed">Completed</span>
                         <?php else: ?>
-                            <span class="badge" style="background:#fef9c3;color:#854d0e">In Progress</span>
+                            <span class="badge badge-in-progress">In Progress</span>
                         <?php endif; ?>
                     </td>
                     <td class="text-muted small"><?= e(substr($s['started_at'],0,16)) ?></td>

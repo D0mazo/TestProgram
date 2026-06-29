@@ -77,40 +77,40 @@ $options     = ['A'=>$question['option_a'],'B'=>$question['option_b'],'C'=>$ques
 pageHeader("Question {$questionNum} of {$totalQ}");
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-2">
-    <span class="text-muted small">👤 <?= e($sess['first_name']) ?> <?= e($sess['last_name']) ?></span>
-    <span class="badge bg-light text-secondary fw-semibold px-3 py-2 border">Q <?= $questionNum ?> / <?= $totalQ ?></span>
-</div>
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="text-muted small">👤 <?= e($sess['first_name']) ?> <?= e($sess['last_name']) ?></span>
+        <span class="badge bg-light text-secondary fw-semibold px-3 py-2 border">Q <?= $questionNum ?> / <?= $totalQ ?></span>
+    </div>
 
-<div class="progress-bar-custom">
-    <div class="progress-bar-fill" style="width:<?= $progressPct ?>%"></div>
-</div>
+    <div class="progress-bar-custom">
+        <div class="progress-bar-fill" style="width:<?= $progressPct ?>%"></div>
+    </div>
 
 <?php if (!empty($_GET['err'])): ?>
     <div class="alert alert-warning rounded-3 py-2 small mb-3">⚠ Please select an answer.</div>
 <?php endif; ?>
 
-<h5 class="fw-bold mb-4 lh-base"><?= e($question['question_text']) ?></h5>
+    <h5 class="fw-bold mb-4 lh-base"><?= e($question['question_text']) ?></h5>
 
-<form method="post" action="quiz.php" id="quizForm">
-    <input type="hidden" name="csrf_token" value="<?= e($csrf) ?>">
-    <?php foreach ($options as $letter => $text): ?>
-        <label class="option-btn">
-            <input type="radio" name="answer" value="<?= $letter ?>"
-                   class="d-none" onchange="selectOption(this)" required>
-            <span class="option-label"><?= $letter ?></span>
-            <?= e($text) ?>
-        </label>
-    <?php endforeach; ?>
-    <button type="submit" id="submitBtn" class="btn-quiz" disabled>
-        <?= $isLast ? '✔ Finish Quiz' : 'Next Question →' ?>
-    </button>
-</form>
+    <form method="post" action="quiz.php" id="quizForm">
+        <input type="hidden" name="csrf_token" value="<?= e($csrf) ?>">
+        <?php foreach ($options as $letter => $text): ?>
+            <label class="option-btn">
+                <input type="radio" name="answer" value="<?= $letter ?>"
+                       class="d-none" onchange="selectOption(this)" required>
+                <span class="option-label"><?= $letter ?></span>
+                <?= e($text) ?>
+            </label>
+        <?php endforeach; ?>
+        <button type="submit" id="submitBtn" class="btn-quiz" disabled>
+            <?= $isLast ? '✔ Finish Quiz' : 'Next Question →' ?>
+        </button>
+    </form>
 
-<div class="dot-nav">
-    <?php for ($i = 1; $i <= $totalQ; $i++): ?>
-        <div class="dot <?= $i < $questionNum ? 'done' : ($i === $questionNum ? 'current' : '') ?>"></div>
-    <?php endfor; ?>
-</div>
+    <div class="dot-nav">
+        <?php for ($i = 1; $i <= $totalQ; $i++): ?>
+            <div class="dot <?= $i < $questionNum ? 'done' : ($i === $questionNum ? 'current' : '') ?>"></div>
+        <?php endfor; ?>
+    </div>
 
 <?php pageFooter(['js/quiz.js']); ?>

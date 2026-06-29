@@ -6,7 +6,7 @@ $ip = getUserIP();
 $db = getDB();
 
 $stmt = $db->prepare(
-    'SELECT id, session_token, question_order, is_completed
+        'SELECT id, session_token, question_order, is_completed
      FROM test_sessions WHERE ip_address = ? LIMIT 1'
 );
 $stmt->execute([$ip]);
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $token = bin2hex(random_bytes(32));
             try {
                 $stmt = $db->prepare(
-                    'INSERT INTO test_sessions (ip_address, first_name, last_name, session_token, question_order)
+                        'INSERT INTO test_sessions (ip_address, first_name, last_name, session_token, question_order)
                      VALUES (?, ?, ?, ?, ?)'
                 );
                 $stmt->execute([$ip, $firstName, $lastName, $token, json_encode($qIds)]);
